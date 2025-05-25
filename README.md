@@ -26,7 +26,6 @@ imagetoicns.exe input.jpg output.icns
 - Uses GDI+ for image processing
 
 ## Notes ℹ️
-- Make sure your console supports Unicode emojis for best experience!
 - Debug resized PNG files are saved in a separate folder during processing.
 ---
 
