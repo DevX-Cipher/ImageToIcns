@@ -1,31 +1,74 @@
-# Image to ICNS Converter 
+# Image to ICNS Converter
 
 ![Platform: Windows](https://img.shields.io/badge/platform-Windows-blue)
-![Builds macOS Apps](https://img.shields.io/badge/builds-macOS-brightgreen)
+![Builds macOS Icons](https://img.shields.io/badge/outputs-ICNS%20(macOS)-brightgreen)
 ![License: MIT (Non-Commercial)](https://img.shields.io/badge/license-MIT--NC-yellow)
+![Build System: CMake](https://img.shields.io/badge/build-CMake-informational)
 
-Convert PNG and JPEG images into macOS ICNS icon files easily. More image formats may be supported in the future!
+Convert PNG and JPEG images into macOS `.icns` icon files easily. Built on Windows, designed with cross-platform support in mind.
 
-## Features ✨
-- Converts PNG and JPEG images to ICNS format
-- Supports multiple icon sizes (16x16 to 1024x1024)
-- Keeps transparency intact
-- Uses GDI+ on Windows for image processing
-- Debug resized images output for verification
+---
 
-## Usage 🛠️
+## ✨ Features
+
+- Converts **PNG** and **JPEG** images to **ICNS** format
+- Supports all macOS icon sizes (16x16 up to 1024x1024)
+- Preserves transparency (alpha channel)
+- Uses **GDI+** on Windows for image decoding
+- Outputs debug-resized images for verification
+
+---
+
+## 🛠️ Usage
 
 ```bash
 imagetoicns.exe input.png output.icns
 imagetoicns.exe input.jpg output.icns
 ```
 
-## Build ⚙️
-
-- Requires Windows with Visual Studio
-- Uses GDI+ for image processing
-
-## Notes ℹ️
-- Debug resized PNG files are saved in a separate folder during processing.
 ---
 
+## ⚙️ Build Instructions
+
+> The project now uses **CMake** for build configuration.
+
+### Windows (Visual Studio):
+
+```bash
+cmake -S . -B build -G "Visual Studio 17 2022"
+cmake --build build --config Release
+```
+
+> Requires:
+> - Visual Studio 2019 or later
+> - GDI+ (included with Windows)
+
+---
+
+## 📁 Debug Output
+
+- During processing, resized PNGs are saved to a `debug_output/` folder for inspection.
+
+---
+
+## 🔭 Future Plans
+
+- Cross-platform support (Linux/macOS builds)
+- Replace GDI+ with a cross-platform image library (e.g., libpng or stb_image)
+- Add support for additional image formats (BMP, TIFF, WebP, etc.)
+- Optional GUI frontend using Qt or ImGui
+
+---
+
+## 🤝 Contributing
+
+Pull requests welcome! Especially if you're interested in:
+- Making the image loader cross-platform
+- Adding CI builds for Linux/macOS
+- Improving ICNS compatibility or compression
+
+---
+
+## 📄 License
+
+MIT (Non-Commercial): Free for open source and personal use.
