@@ -11,6 +11,7 @@
 
 #include "png.h"
 #include "jpg.h"
+#include <crc.h>
 
 #pragma comment(lib, "gdiplus.lib")
 

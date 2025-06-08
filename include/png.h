@@ -20,14 +20,11 @@ struct ICNSChunk {
     std::vector<uint8_t> data;
 };
 
-static uint32_t crc_table[256];
+
 
 void resize_nn(const PNGImage& src, PNGImage& dst, uint32_t w, uint32_t h);
 bool load_png_gdiplus(const wchar_t* filename, PNGImage& out);
 bool write_png_chunk(FILE* f, const char* type, const uint8_t* data, uint32_t len);
-uint32_t crc(const uint8_t* buf, size_t len);
-uint32_t update_crc(uint32_t crc, const uint8_t* buf, size_t len);
-void make_crc_table();
 bool write_simple_png(const char* filename, const PNGImage& img);
 void write_be_uint32(uint8_t* buf, uint32_t val);
 std::string WideCharToUtf8(const wchar_t* wstr);

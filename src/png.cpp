@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include "png.h"
+#include <crc.h>
 
 
 void write_be_uint32(uint8_t* buf, uint32_t val) {
@@ -55,30 +56,6 @@ bool write_simple_png(const char* filename, const PNGImage& img) {
     return status == Ok;
 }
 
-void make_crc_table() {
-    for (uint32_t n = 0; n < 256; n++) {
-        uint32_t c = n;
-        for (int k = 0; k < 8; k++) {
-            if (c & 1)
-                c = 0xedb88320L ^ (c >> 1);
-            else
-                c = c >> 1;
-        }
-        crc_table[n] = c;
-    }
-}
-
-uint32_t update_crc(uint32_t crc, const uint8_t* buf, size_t len) {
-    uint32_t c = crc;
-    for (size_t n = 0; n < len; n++) {
-        c = crc_table[(c ^ buf[n]) & 0xff] ^ (c >> 8);
-    }
-    return c;
-}
-
-uint32_t crc(const uint8_t* buf, size_t len) {
-    return update_crc(0xffffffff, buf, len) ^ 0xffffffff;
-}
 
 bool write_png_chunk(FILE* f, const char* type, const uint8_t* data, uint32_t len) {
     uint8_t len_buf[4];
@@ -128,14 +105,16 @@ bool load_png_gdiplus(const wchar_t* filename, PNGImage& out) {
 
 
     // Debug print first 8 pixels RGBA
+#ifdef _DEBUG
     wprintf(L"Original image size: %u x %u\n", w, h);
     wprintf(L"First 8 pixels RGBA (hex): ");
+
     for (int i = 0; i < 8 && i < (int)(w * h); i++) {
         size_t idx = i * 4;
         wprintf(L"%02X %02X %02X %02X  ", out.pixels[idx], out.pixels[idx + 1], out.pixels[idx + 2], out.pixels[idx + 3]);
     }
     wprintf(L"\n");
-
+#endif // DEBUG
     return true;
 }
 
@@ -155,82 +134,14 @@ void resize_nn(const PNGImage& src, PNGImage& dst, uint32_t w, uint32_t h) {
             dst.pixels[didx + 3] = src.pixels[sidx + 3];
         }
     }
+#ifdef DEBUG
+
     wprintf(L"Resized to %ux%u\n", w, h);
+#endif // DEBUG
 }
 
 
-bool write_icns(const char* filename, const std::vector<PNGImage>& images) {
-    struct {
-        uint32_t size;
-        char code[5];
-    } mapping[] = {
-        {16, "icp4"},
-        {32, "icp5"},
-        {64, "icp6"},
-        {128,"ic07"},
-        {256,"ic08"},
-        {512,"ic09"},
-        {1024,"ic10"}
-    };
 
-    std::vector<ICNSChunk> chunks;
-
-    for (auto& m : mapping) {
-        auto it = std::find_if(images.begin(), images.end(), [&](const PNGImage& img) {
-            return img.width == m.size && img.height == m.size;
-            });
-        if (it == images.end()) {
-            fprintf(stderr, "Missing icon size %u\n", m.size);
-            return false;
-        }
-
-        const char* tmpname = "tmp_icns_icon.png";
-        if (!write_simple_png(tmpname, *it)) {
-            fprintf(stderr, "Failed to write temp PNG for size %u\n", m.size);
-            return false;
-        }
-
-        FILE* f = nullptr;
-        errno_t err = fopen_s(&f, tmpname, "rb");
-        if (err || !f) return false;
-        fseek(f, 0, SEEK_END);
-        long sz = ftell(f);
-        fseek(f, 0, SEEK_SET);
-        std::vector<uint8_t> pngdata(sz);
-        fread(pngdata.data(), 1, sz, f);
-        fclose(f);
-        remove(tmpname);
-
-        ICNSChunk c;
-        memcpy(c.type, m.code, 4);
-        c.data = std::move(pngdata);
-        chunks.push_back(std::move(c));
-    }
-
-    uint32_t total_size = 8; // header
-    for (auto& c : chunks) {
-        total_size += 8 + (uint32_t)c.data.size();
-    }
-
-    FILE* f = nullptr;
-    errno_t err = fopen_s(&f, filename, "wb");
-    if (err || !f) return false;
-
-    fwrite("icns", 1, 4, f);
-    uint8_t buf[4];
-    write_be_uint32(buf, total_size);
-    fwrite(buf, 1, 4, f);
-
-    for (auto& c : chunks) {
-        fwrite(c.type, 1, 4, f);
-        write_be_uint32(buf, (uint32_t)c.data.size() + 8);
-        fwrite(buf, 1, 4, f);
-        fwrite(c.data.data(), 1, c.data.size(), f);
-    }
-
-    fclose(f);
-    return true;
-}
 
 std::string WideCharToUtf8(const wchar_t* wstr) {
     if (!wstr) return {};
