@@ -20,8 +20,6 @@ struct ICNSChunk {
     std::vector<uint8_t> data;
 };
 
-
-
 void resize_nn(const PNGImage& src, PNGImage& dst, uint32_t w, uint32_t h);
 bool load_png_gdiplus(const wchar_t* filename, PNGImage& out);
 bool write_png_chunk(FILE* f, const char* type, const uint8_t* data, uint32_t len);
