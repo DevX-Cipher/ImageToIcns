@@ -55,7 +55,6 @@ cmake --build build --config Release
 
 - Cross-platform support (Linux/macOS builds)
 - Replace GDI+ with a cross-platform image library (e.g., libpng or stb_image)
-- Add support for additional image formats (BMP, TIFF, WebP, etc.)
 - Optional GUI frontend using Qt or ImGui
 
 ---
