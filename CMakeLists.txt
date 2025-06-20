@@ -22,9 +22,8 @@ file(GLOB_RECURSE HEADERS include/*.h)
 
 # Executable
 add_executable(imagetoicns ${SOURCES} ${HEADERS})
-
 # Link GDI+
-target_link_libraries(imagetoicns gdiplus)
+target_link_libraries(imagetoicns PRIVATE "${CMAKE_SOURCE_DIR}/zlib.lib")
 
 # Install target (optional)
 install(TARGETS imagetoicns DESTINATION bin)
